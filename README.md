@@ -1,3 +1,6 @@
-# CourseProject
+# CS410 group project for JADE
 
-Please fork this repository and paste the github link of your fork on Microsoft CMT. Detailed instructions are on Coursera under Week 1: Course Project Overview/Week 9 Activities.
+
+Jhinuk Barman, jbarman2
+Anumeha Agrawal  anumeha2
+Devang Aggarwal; devanga3
