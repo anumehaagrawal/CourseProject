@@ -2,7 +2,8 @@ import requests
 from bs4 import BeautifulSoup
 import pandas as pd
 URL = "https://money.cnn.com/data/hotstocks/index.html"
-URL_two = "https://money.cnn.com/quote/quote.html?symb=PFE" #the symbol can be changed to whatever stock symbol
+symb = input("Enter Stock Name: ")
+URL_two = "https://money.cnn.com/quote/quote.html?symb=" + symb 
 page = requests.get(URL)
 page_two = requests.get(URL_two)
 soup = BeautifulSoup(page.content, "html.parser")
