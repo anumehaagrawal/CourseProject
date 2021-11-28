@@ -1,6 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
+
 
 #URL_two = "https://money.cnn.com/quote/quote.html?symb=PFE" #the symbol can be changed to whatever stock symbol
 
@@ -13,6 +15,7 @@ def TopStocks():
     soup = BeautifulSoup(page.content, "html.parser")
     results = soup.find(class_="wsod_dataTable wsod_dataTableBigAlt")
     df = pd.read_html(str(results))[0]
+   
     return df
 
 def SpecificStock(stockURL):

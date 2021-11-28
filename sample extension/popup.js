@@ -28,9 +28,13 @@ document.addEventListener('DOMContentLoaded', function() {
     taburl = tab.url;
   });
   document.querySelector('#checkPage').addEventListener('click', function() {
-    chrome.runtime.sendMessage('get-topStock', (response) => {
+    chrome.runtime.sendMessage('get-topStocks', (response) => {
       // 3. Got an asynchronous response with the data from the background
       document.querySelector('#topStocks').innerHTML = response;
+    });
+    chrome.runtime.sendMessage('get-stockNews', (response) => {
+      // 3. Got an asynchronous response with the data from the background
+      document.querySelector('#stockNews').innerHTML = response;
     });
     alert(taburl);
     chrome.runtime.sendMessage(taburl, (response) => {

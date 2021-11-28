@@ -1,12 +1,37 @@
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, json, render_template, jsonify, request
 from flask_cors import CORS, cross_origin
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
+from urllib.request import urlopen, Request
 
 app = Flask(__name__)
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Access-Control-Allow-Origin'
+
+@app.route('/_top_stocks_news/')
+def TopNewsInfo():
+    url = 'https://money.cnn.com/data/markets/'
+    req = Request(url)
+    response = urlopen(req)    
+    html = BeautifulSoup(response)
+    html = html.find(class_="column right-column")
+    html = html.find(class_="module")
+    link_html = html.find_all(class_="summary-hed")
+
+    links = []
+    for link_info in link_html:
+        links.append(link_info['href'])
+        #print(link_html[0]['href'])
+        
+    html = html.find_all(class_="thumb-caption")
+
+    headlines = [] 
+    for headline in html:
+        headlines.append(headline.text.strip())
+
+    message = {"headlines": headlines, "links": links}
+    return jsonify(message)
 
 @app.route('/_top_stocks/')
 def TopStocks():
