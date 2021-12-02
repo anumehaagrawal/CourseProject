@@ -9,7 +9,27 @@ app = Flask(__name__)
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Access-Control-Allow-Origin'
 
-@app.route('/_top_stocks_news/')
+@app.route('/_top_stocks/', methods=['GET'])
+def TopStocks():
+    URL = "https://money.cnn.com/data/hotstocks/index.html"
+    page = requests.get(URL)
+    soup = BeautifulSoup(page.content, "html.parser")
+    results = soup.find(class_="wsod_dataTable wsod_dataTableBigAlt")
+    df = pd.read_html(str(results))[0]
+
+    #sort the pandas data frame by the greatest change
+    def change_percent_and_sort(df, col_name):
+        df[col_name] = df[col_name].str.replace(r'%', '')
+        df[col_name] = df[col_name].astype(float)
+        return df.sort_values([col_name], ascending = False)
+
+    df_sorted = change_percent_and_sort(df, '%\xa0Change')
+    df_sorted = df_sorted.rename(columns={'%\xa0Change': 'PercentChange'})
+    top_stocks = df_sorted['Company'][:10]
+    return jsonify(top_stocks.to_string())
+
+
+@app.route('/_top_stocks_news/', methods=['GET'])
 def TopNewsInfo():
     url = 'https://money.cnn.com/data/markets/'
     req = Request(url)
@@ -32,15 +52,7 @@ def TopNewsInfo():
 
     message = {"headlines": headlines, "links": links}
     return jsonify(message)
-
-@app.route('/_top_stocks/')
-def TopStocks():
-    URL = "https://money.cnn.com/data/hotstocks/index.html"
-    page = requests.get(URL)
-    soup = BeautifulSoup(page.content, "html.parser")
-    results = soup.find(class_="wsod_dataTable wsod_dataTableBigAlt")
-    df = pd.read_html(str(results))[0]
-    return jsonify(df.to_string())
+    # return jsonify(df.to_string())
 
 @app.route('/stock', methods=['GET'])
 def SpecificStock():
@@ -52,10 +64,21 @@ def SpecificStock():
     results_two = soup_two.find("h1",class_="wsod_fLeft")
     results_three = soup_two.find("td",class_="wsod_last")
     results_four = soup_two.find("span",class_="posData")
-
+    print(stockURL)
     data = [[results_two.text,results_three.text[0:5], results_four.text]]
     df_two = pd.DataFrame(data, columns = ['Stock Name', 'Stock Price', '% Change'])
-    return jsonify(df_two.to_string())
+
+    #edited the pandas DataFrame
+    # def change_percent_and_sort(df, col_name):
+    #     df[col_name] = df[col_name].str.replace(r'%', '')
+    #     df[col_name] = df[col_name].astype(float)
+    #     return df.sort_values([col_name], ascending = False)
+    #
+    # df_sorted = change_percent_and_sort(df_two, '%\xa0Change')
+    # df_sorted = df_sorted.rename(columns={'%\xa0Change': 'PercentChange'})
+
+
+    return jsonify(df_twp.to_string())
 
 if __name__ == "__main__":
     app.run(debug=True)
