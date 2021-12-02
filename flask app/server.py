@@ -13,7 +13,7 @@ app.config['CORS_HEADERS'] = 'Access-Control-Allow-Origin'
 def TopNewsInfo():
     url = 'https://money.cnn.com/data/markets/'
     req = Request(url)
-    response = urlopen(req)    
+    response = urlopen(req)
     html = BeautifulSoup(response)
     html = html.find(class_="column right-column")
     html = html.find(class_="module")
@@ -23,10 +23,10 @@ def TopNewsInfo():
     for link_info in link_html:
         links.append(link_info['href'])
         #print(link_html[0]['href'])
-        
+
     html = html.find_all(class_="thumb-caption")
 
-    headlines = [] 
+    headlines = []
     for headline in html:
         headlines.append(headline.text.strip())
 
