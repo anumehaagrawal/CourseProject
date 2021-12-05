@@ -30,3 +30,16 @@ def SpecificStock(stockURL):
     data = [[results_two.text,results_three.text[0:5], results_four.text]]
     df_two = pd.DataFrame(data, columns = ['Stock Name', 'Stock Price', '% Change'])
     return df_two
+
+def LinksForSentimentAnalysis(stockURL):
+   page_three = requests.get(stockURL)
+   soup_three = BeautifulSoup(page_two.content, "html.parser")
+   results_five = soup_two.find_all("td", class_="firstCol")
+   df_three = pd.DataFrame(columns = ['URLs'])
+   for result in results_five:
+    links = result.find_all("a")
+    for link in links:
+        data_two = link.text.strip()
+        df_three = df_three.append({'URLs': data_two}, ignore_index=True)
+     
+    return df_three
