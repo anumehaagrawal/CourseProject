@@ -54,6 +54,7 @@ def SentimentAnalysis(dataframe):
     parsed_stocks['Sentiment'] = sentiment
     df_sentiment = parsed_stocks[['Headline', 'Sentiment']]
     df_sentiment.index += 1
+
     return df_sentiment
 
 @app.route('/_top_stocks/', methods=['GET'])
@@ -72,7 +73,8 @@ def TopStocks():
         print(row.count)
         x.add_row([row.Index, row.Company])
     # print(x)
-    return x.get_html_string()
+    x.padding_width = 5
+    return x.get_html_string(attributes={"class":"styled-table"})
 
 
 @app.route('/_top_stocks_news/', methods=['GET'])
@@ -101,7 +103,14 @@ def TopNewsInfo():
     df_links = pd.DataFrame(message)
     top_sentiments = SentimentAnalysis(df_links)
 
-    return top_sentiments.to_html()
+    x = PrettyTable()
+    x.field_names = ["Headline", "Sentiment"]
+    for row in top_sentiments.itertuples(index=True, name='Pandas'):
+        x.add_row([row.Headline, row.Sentiment])
+
+    return x.get_html_string(attributes={"class":"styled-table"})
+
+    # return top_sentiments.to_html()
 
     # top_sent = PrettyTable()
     # top_sent.field_names = ["Headline", "Sentiment"]
@@ -146,7 +155,7 @@ def SpecificStock():
     # df_sorted = df_sorted.rename(columns={'%\xa0Change': 'PercentChange'})
 
 
-    return x.get_html_string()
+    return x.get_html_string(attributes={"class":"styled-table"})
 
 def LinksForSentimentAnalysis(stockURL):
    page_two  = requests.get(stockURL)
