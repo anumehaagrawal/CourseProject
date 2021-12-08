@@ -70,7 +70,6 @@ def Top_News_Parser():
     links = []
     for link_info in link_html:
         links.append(link_info['href'])
-        #print(link_html[0]['href'])
 
     html = html.find_all(class_="thumb-caption")
 
@@ -88,7 +87,6 @@ def Top_News_Parser():
 @app.route('/_top_stocks/', methods=['GET'])
 def TopStocks():
     df_sorted = sorted_df()
-    # top_stocks = df_sorted['Company'][:10].array
     df_sorted['Company'] = [arr[1] for arr in df_sorted['Company'].str.split(' ', 1)]
     top_stocks = df_sorted[:10]
     top_stocks = top_stocks.reset_index()
@@ -99,8 +97,7 @@ def TopStocks():
     x.field_names = [" ", "Company", "Price", "Percent Change"]
     for row in top_stocks.itertuples(index=True, name='Pandas'):
         x.add_row([row.Index, row.Company, row.Price, row.PercentChange])
-    # print(x)
-    # x.padding_width = 5
+
     return x.get_html_string(attributes={"class":"styled-table"})
 
 
@@ -151,7 +148,6 @@ def LinksForSentimentAnalysis(stockURL):
 
 @app.route('/sentiment', methods=['GET'])
 def Sentiment_Analysis_perstock():
-    # stockURL = "https://money.cnn.com/quote/quote.html?symb=LUV"
     stockURL = request.args.get('url')
     parsed_df = LinksForSentimentAnalysis(stockURL)
     sentiment_df = SentimentAnalysis(parsed_df)
@@ -168,7 +164,7 @@ def Visualize():
     #save top 5 stocks bar graph into an image
     fig = plt.figure(figsize=(8, 8)) #8 x 8
     plt.bar(df_sorted['Company'][:5],df_sorted['PercentChange'][:5])
-    plt.xticks(rotation = 15) # Rotates X-Axis Ticks by 45-degrees
+    plt.xticks(rotation = 15) # Rotates X-Axis Ticks by 15-degrees
     plt.title("Top 5 Stocks Bar Chart")
     plt.ylabel("Percent Change")
     plt.savefig('../sample_extension/topstocks.png', format="png")
@@ -182,10 +178,11 @@ def Visualize1():
     top_sentiments = Top_News_Parser()
     grouped_stocks = top_sentiments.groupby('Sentiment').count()
     grouped_stocks.reset_index(level=0, inplace=True)
+
     #save price versus percent change scatter plot into an image
     fig1 = plt.figure(figsize=(8, 8))
     plt.bar(grouped_stocks.Sentiment,grouped_stocks.Headline)
-    plt.xticks(rotation = 15) # Rotates X-Axis Ticks by 45-degrees
+    plt.xticks(rotation = 15) # Rotates X-Axis Ticks by 15-degrees
     plt.title("Sentiment Analysis Bar Chart")
     plt.ylabel("Polarity Score")
     plt.savefig('../sample_extension/sentimentgraph.png', format="png")
