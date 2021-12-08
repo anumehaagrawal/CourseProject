@@ -4,6 +4,7 @@ import requests
 from bs4 import BeautifulSoup
 import pandas as pd
 from urllib.request import urlopen, Request
+from prettytable import PrettyTable
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -25,8 +26,13 @@ def TopStocks():
 
     df_sorted = change_percent_and_sort(df, '%\xa0Change')
     df_sorted = df_sorted.rename(columns={'%\xa0Change': 'PercentChange'})
-    top_stocks = df_sorted['Company'][:10]
-    return jsonify(top_stocks.to_string())
+    x = PrettyTable()
+    x.field_names = ["Company", "Price", "PercentChange"]
+    for row in df.itertuples(index=True, name='Pandas'):
+        print(row.count)
+        x.add_row([row.Company, row.Price, row.Change])
+    print(x)
+    return x.get_html_string()
 
 
 @app.route('/_top_stocks_news/', methods=['GET'])
@@ -50,8 +56,13 @@ def TopNewsInfo():
     for headline in html:
         headlines.append(headline.text.strip())
 
-    message = {"headlines": headlines, "links": links}
-    return jsonify(message)
+    x = PrettyTable()
+    x.field_names = ["Headlines", "Links"]
+    for index in range(min(len(links), len(headlines))):
+        x.add_row([headlines[index], links[index]])
+
+    print(x)
+    return x.get_html_string()
     # return jsonify(df.to_string())
 
 @app.route('/stock', methods=['GET'])
@@ -65,8 +76,12 @@ def SpecificStock():
     results_three = soup_two.find("td",class_="wsod_last")
     results_four = soup_two.find("span",class_="posData")
     print(stockURL)
-    data = [[results_two.text,results_three.text[0:5], results_four.text]]
-    df_two = pd.DataFrame(data, columns = ['Stock Name', 'Stock Price', '% Change'])
+    data = [results_two.text, results_three.text[0:5], results_four.text]
+    print(data)
+    # df_two = pd.DataFrame(data, columns = ['Stock Name', 'Stock Price', '% Change'])
+    x = PrettyTable()
+    x.field_names = ['Stock Name', 'Stock Price', '% Change']
+    x.add_row([results_two.text, results_three.text[0:5], results_four.text])
 
     #edited the pandas DataFrame
     # def change_percent_and_sort(df, col_name):
@@ -78,7 +93,7 @@ def SpecificStock():
     # df_sorted = df_sorted.rename(columns={'%\xa0Change': 'PercentChange'})
 
 
-    return jsonify(df_twp.to_string())
+    return x.get_html_string()
 
 if __name__ == "__main__":
     app.run(debug=True)

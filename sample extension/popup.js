@@ -36,10 +36,9 @@ document.addEventListener('DOMContentLoaded', function() {
       // 3. Got an asynchronous response with the data from the background
       document.querySelector('#stockNews').innerHTML = response;
     });
-    alert(taburl);
     chrome.runtime.sendMessage(taburl, (response) => {
       // 3. Got an asynchronous response with the data from the background
-      alert(response);
+      document.querySelector('#specificStock').innerHTML = response;
     });
   }, false);
 }, false);
