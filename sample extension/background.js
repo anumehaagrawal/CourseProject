@@ -26,18 +26,6 @@ chrome.runtime.onMessage.addListener(
                 .then(response => sendResponse(response))
                 .catch()
         }
-        else if(obj == "get-sentiment") {
-            var taburl_sentiment = obj;
-            var url = serverhost + '/sentiment?url=' + tabUrl;
-            // var url = serverhost + '/sentiment/';
-
-            // console.log(url);
-
-            fetch(url)
-                .then(response => response.text())
-                .then(response => sendResponse(response))
-                .catch()
-        }
         else{
             var tabUrl = obj;
             var url = serverhost + '/stock?url=' + tabUrl;

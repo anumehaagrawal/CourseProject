@@ -20,14 +20,12 @@
 
 document.addEventListener('DOMContentLoaded', function() {
   var taburl = "";
-  var taburl_sentiment = "";
   chrome.tabs.query({
     active: true,
     currentWindow: true
   }, function(tabs) {
     var tab = tabs[0];
     taburl = tab.url;
-    taburl_sentiment = tab.url
   });
   document.querySelector('#checkPage').addEventListener('click', function() {
     chrome.runtime.sendMessage('get-topStocks', (response) => {
