@@ -62,14 +62,15 @@ def TopStocks():
     # top_stocks = df_sorted['Company'][:10].array
     df_sorted['Company'] = [arr[1] for arr in df_sorted['Company'].str.split(' ', 1)]
     top_stocks = df_sorted[:10]
-    # top_stocks = top_stocks.reset_index()
-    # top_stocks.index += 1
+    top_stocks = top_stocks.reset_index()
+    top_stocks.index += 1
+    top_stocks['Index'] = top_stocks.index
 
     x = PrettyTable()
-    x.field_names = ["Company"]
+    x.field_names = [" ", "Company"]
     for row in top_stocks.itertuples(index=True, name='Pandas'):
         print(row.count)
-        x.add_row([row.Company])
+        x.add_row([row.Index, row.Company])
     # print(x)
     return x.get_html_string()
 
@@ -122,13 +123,18 @@ def SpecificStock():
     results_two = soup_two.find("h1",class_="wsod_fLeft")
     results_three = soup_two.find("td",class_="wsod_last")
     results_four = soup_two.find("span",class_="posData")
-    print(stockURL)
-    data = [results_two.text, results_three.text[0:5], results_four.text]
-    print(data)
+
+    parsed_df = LinksForSentimentAnalysis(stockURL)
+    sentiment_df = SentimentAnalysis(parsed_df)
+    sentiment = sentiment_df.Sentiment.mode()[0]
+
+    # print(stockURL)
+    data = [results_two.text, results_three.text[0:5], results_four.text, sentiment]
+    # print(data)
     # df_two = pd.DataFrame(data, columns = ['Stock Name', 'Stock Price', '% Change'])
     x = PrettyTable()
-    x.field_names = ['Stock Name', 'Stock Price', '% Change']
-    x.add_row([results_two.text, results_three.text[0:5], results_four.text])
+    x.field_names = ['Stock Name', 'Stock Price', '% Change', 'Sentiment']
+    x.add_row([results_two.text, results_three.text[0:5], results_four.text, sentiment])
 
     #edited the pandas DataFrame
     # def change_percent_and_sort(df, col_name):
@@ -146,22 +152,24 @@ def LinksForSentimentAnalysis(stockURL):
    page_two  = requests.get(stockURL)
    soup_three = BeautifulSoup(page_two.content, "html.parser")
    results_five = soup_three.find_all("td", class_="firstCol")
-   df_three = pd.DataFrame(columns = ['Headlines'])
+   df_three = pd.DataFrame(columns = ['Headline'])
    for result in results_five:
     links = result.find_all("a")
     for link in links:
         data_two = link.text.strip()
-        df_three = df_three.append({'Headlines': data_two}, ignore_index=True)
+        df_three = df_three.append({'Headline': data_two}, ignore_index=True)
 
     return df_three
 
-# @app.route('/_sentiment_analysis/', methods=['GET'])
+@app.route('/sentiment', methods=['GET'])
 def Sentiment_Analysis_perstock():
-    stockURL = "https://money.cnn.com/quote/quote.html?symb=LUV"
+    # stockURL = "https://money.cnn.com/quote/quote.html?symb=LUV"
+    stockURL = request.args.get('url')
     parsed_df = LinksForSentimentAnalysis(stockURL)
     sentiment_df = SentimentAnalysis(parsed_df)
     sentiment = sentiment_df.Sentiment.mode()[0]
     return sentiment
+
 
 @app.route('/_visualize/', methods=['GET'])
 def Visualize():
