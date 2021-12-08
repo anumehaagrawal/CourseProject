@@ -20,12 +20,14 @@
 
 document.addEventListener('DOMContentLoaded', function() {
   var taburl = "";
+  var taburl_sentiment = "";
   chrome.tabs.query({
     active: true,
     currentWindow: true
   }, function(tabs) {
     var tab = tabs[0];
     taburl = tab.url;
+    taburl_sentiment = tab.url
   });
   document.querySelector('#checkPage').addEventListener('click', function() {
     chrome.runtime.sendMessage('get-topStocks', (response) => {
@@ -40,5 +42,9 @@ document.addEventListener('DOMContentLoaded', function() {
       // 3. Got an asynchronous response with the data from the background
       document.querySelector('#specificStock').innerHTML = response;
     });
+    // chrome.runtime.sendMessage(taburl_sentiment, (response) => {
+    //   // 3. Got an asynchronous response with the data from the background
+    //   document.querySelector('#sentiment').innerHTML = response;
+    // });
   }, false);
 }, false);
