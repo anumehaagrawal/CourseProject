@@ -7,6 +7,7 @@ from urllib.request import urlopen, Request
 from prettytable import PrettyTable
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import matplotlib.pyplot as plt
+import matplotlib
 import mpld3
 from mpld3 import plugins
 
@@ -57,28 +58,7 @@ def SentimentAnalysis(dataframe):
 
     return df_sentiment
 
-@app.route('/_top_stocks/', methods=['GET'])
-def TopStocks():
-    df_sorted = sorted_df()
-    # top_stocks = df_sorted['Company'][:10].array
-    df_sorted['Company'] = [arr[1] for arr in df_sorted['Company'].str.split(' ', 1)]
-    top_stocks = df_sorted[:10]
-    top_stocks = top_stocks.reset_index()
-    top_stocks.index += 1
-    top_stocks['Index'] = top_stocks.index
-
-    x = PrettyTable()
-    x.field_names = [" ", "Company"]
-    for row in top_stocks.itertuples(index=True, name='Pandas'):
-        print(row.count)
-        x.add_row([row.Index, row.Company])
-    # print(x)
-    x.padding_width = 5
-    return x.get_html_string(attributes={"class":"styled-table"})
-
-
-@app.route('/_top_stocks_news/', methods=['GET'])
-def TopNewsInfo():
+def Top_News_Parser():
     url = 'https://money.cnn.com/data/markets/'
     req = Request(url)
     response = urlopen(req)
@@ -90,7 +70,6 @@ def TopNewsInfo():
     links = []
     for link_info in link_html:
         links.append(link_info['href'])
-        #print(link_html[0]['href'])
 
     html = html.find_all(class_="thumb-caption")
 
@@ -102,25 +81,35 @@ def TopNewsInfo():
 
     df_links = pd.DataFrame(message)
     top_sentiments = SentimentAnalysis(df_links)
+    return top_sentiments
 
+
+@app.route('/_top_stocks/', methods=['GET'])
+def TopStocks():
+    df_sorted = sorted_df()
+    df_sorted['Company'] = [arr[1] for arr in df_sorted['Company'].str.split(' ', 1)]
+    top_stocks = df_sorted[:10]
+    top_stocks = top_stocks.reset_index()
+    top_stocks.index += 1
+    top_stocks['Index'] = top_stocks.index
+
+    x = PrettyTable()
+    x.field_names = [" ", "Company", "Price", "Percent Change"]
+    for row in top_stocks.itertuples(index=True, name='Pandas'):
+        x.add_row([row.Index, row.Company, row.Price, row.PercentChange])
+
+    return x.get_html_string(attributes={"class":"styled-table"})
+
+
+@app.route('/_top_stocks_news/', methods=['GET'])
+def TopNewsInfo():
+    top_sentiments = Top_News_Parser()
     x = PrettyTable()
     x.field_names = ["Headline", "Sentiment"]
     for row in top_sentiments.itertuples(index=True, name='Pandas'):
         x.add_row([row.Headline, row.Sentiment])
 
     return x.get_html_string(attributes={"class":"styled-table"})
-
-    # return top_sentiments.to_html()
-
-    # top_sent = PrettyTable()
-    # top_sent.field_names = ["Headline", "Sentiment"]
-    # for row in top_sentiments.itertuples(index=True, name='Pandas'):
-    #     # print(row.count)
-    #     top_sent.add_row([row.Headline, row.Sentiment])
-    #
-    # # print(top_sent)
-    # return top_sent.get_html_string()
-    # return jsonify(df.to_string())
 
 @app.route('/stock', methods=['GET'])
 def SpecificStock():
@@ -137,23 +126,10 @@ def SpecificStock():
     sentiment_df = SentimentAnalysis(parsed_df)
     sentiment = sentiment_df.Sentiment.mode()[0]
 
-    # print(stockURL)
     data = [results_two.text, results_three.text[0:5], results_four.text, sentiment]
-    # print(data)
-    # df_two = pd.DataFrame(data, columns = ['Stock Name', 'Stock Price', '% Change'])
     x = PrettyTable()
-    x.field_names = ['Stock Name', 'Stock Price', '% Change', 'Sentiment']
+    x.field_names = ['Stock Name', 'Stock Price', 'Percent Change', 'Sentiment']
     x.add_row([results_two.text, results_three.text[0:5], results_four.text, sentiment])
-
-    #edited the pandas DataFrame
-    # def change_percent_and_sort(df, col_name):
-    #     df[col_name] = df[col_name].str.replace(r'%', '')
-    #     df[col_name] = df[col_name].astype(float)
-    #     return df.sort_values([col_name], ascending = False)
-    #
-    # df_sorted = change_percent_and_sort(df_two, '%\xa0Change')
-    # df_sorted = df_sorted.rename(columns={'%\xa0Change': 'PercentChange'})
-
 
     return x.get_html_string(attributes={"class":"styled-table"})
 
@@ -172,7 +148,6 @@ def LinksForSentimentAnalysis(stockURL):
 
 @app.route('/sentiment', methods=['GET'])
 def Sentiment_Analysis_perstock():
-    # stockURL = "https://money.cnn.com/quote/quote.html?symb=LUV"
     stockURL = request.args.get('url')
     parsed_df = LinksForSentimentAnalysis(stockURL)
     sentiment_df = SentimentAnalysis(parsed_df)
@@ -180,43 +155,39 @@ def Sentiment_Analysis_perstock():
     return sentiment
 
 
-@app.route('/_visualize/', methods=['GET'])
+@app.route('/visualize/', methods=['GET'])
 def Visualize():
-    # #plot a bar graph of top 5 stocks
     matplotlib.use('agg')
     df_sorted = sorted_df()
-    fig = plt.figure()
-    ax = fig.add_axes([0,0,1,1])
-    ax.bar(df_sorted['Company'][:5],df_sorted['PercentChange'][:5])
-    plt.xticks(rotation = 45) # Rotates X-Axis Ticks by 45-degrees
+    df_sorted['Company'] = [arr[1] for arr in df_sorted['Company'].str.split(' ', 1)]
+
+    #save top 5 stocks bar graph into an image
+    fig = plt.figure(figsize=(8, 8)) #8 x 8
+    plt.bar(df_sorted['Company'][:5],df_sorted['PercentChange'][:5])
+    plt.xticks(rotation = 15) # Rotates X-Axis Ticks by 15-degrees
     plt.title("Top 5 Stocks Bar Chart")
-    plt.savefig('CourseProject/topstocks.png', format="png")
-    # plt.show()
-    #
-    # #plot only positive increasing stocks
-    # plt.scatter(df_sorted.Price[:5], df_sorted.PercentChange[:5])
-    # plt.title("Percent Change vs Price for Top 5 Stocks")
-    # plt.xlabel("Price")
-    # plt.ylabel("Percent Change")
-    # plt.show()
-    # plt.savefig('path/to/pic.png')
+    plt.ylabel("Percent Change")
+    plt.savefig('../sample_extension/topstocks.png', format="png")
 
-    #sentiment analysis plot for top 10 stocks
-    # df_sorted = sorted_df()
-    # parsed_stocks = SentimentAnalysis(df_sorted)
-    # grouped_stocks = parsed_stocks.groupby('Sentiment').count()
-    # grouped_stocks.reset_index(level=0, inplace=True)
-    # fig = plt.figure()
-    # ax = fig.add_axes([0,0,1,1])
-    # ax.bar(grouped_stocks.Sentiment,grouped_stocks.Positive)
-    # plt.xticks(rotation = 45) # Rotates X-Axis Ticks by 45-degrees
-    # plt.title("Sentiment Analysis Bar Chart")
-    # # plt.show()
-    # # mpld3.show()
-    # plt.savefig('sentimentAnalysis.png')
-    # plt.show()
 
-    # return parsed_stocks.to_html()
+    return "Top Stock Visualization:"
+
+@app.route('/visualize1/', methods=['GET'])
+def Visualize1():
+    matplotlib.use('agg')
+    top_sentiments = Top_News_Parser()
+    grouped_stocks = top_sentiments.groupby('Sentiment').count()
+    grouped_stocks.reset_index(level=0, inplace=True)
+
+    #save price versus percent change scatter plot into an image
+    fig1 = plt.figure(figsize=(8, 8))
+    plt.bar(grouped_stocks.Sentiment,grouped_stocks.Headline)
+    plt.xticks(rotation = 15) # Rotates X-Axis Ticks by 15-degrees
+    plt.title("Sentiment Analysis Bar Chart")
+    plt.ylabel("Count")
+    plt.savefig('../sample_extension/sentimentgraph.png', format="png")
+
+    return "Sentiment Visualization:"
 
 if __name__ == "__main__":
     app.run(debug=True)

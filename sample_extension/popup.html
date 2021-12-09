@@ -10,7 +10,6 @@
         text-decoration: none;
         display: inline-block;
         font-size: 16px;
-        /* margin: 4px 2px; */
         transition-duration: 0.4s;
         cursor: pointer;
         align: center;
@@ -20,19 +19,19 @@
       .button1 {
         background-color: white;
         color: black;
-        border: 2px solid #228B22	;
+        border: 2px solid #009879	;
         text-align: center;
       }
 
       .button1:hover {
-        background-color: #228B22	;
+        background-color: #009879	;
         color: white;
       }
 
       .button2 {
         background-color: white;
         color: black;
-        border: 2px solid #6495ED;
+        border: 2px solid #009879;
         text-align: center;
       }
 
@@ -40,29 +39,23 @@
         font-family: 'Trebuchet MS', sans-serif;
         font-weight: bold;
         font-size: 30px;
-        color: #228B22;
+        color: #009879;
         text-align: center;
       }
 
       body {
-        width: 400px; /* your desired width */
-        /* max-width: 100%; */
+        width: 400px;
         height: 600px;
         position: relative;
         vertical-align:middle;
         background-color: #FFFFE0	;
       }
 
-      .footer {
-        background-color: #CCCCFF;
-        margin-bottom: auto;
-      }
 
       /* make the pandas dataframe look nicer */
       .mystyle {
           font-size: 20pt;
           font-family: Arial;
-          /* border-collapse: collapse; */
           border: 1px solid silver;
           margin-left: 10px;
 
@@ -102,26 +95,22 @@
         color: #009879;
       }
 
-
     </style>
-    <title>lets analyse the page!</title>
+    <title>lets analyse stocks!</title>
   </head>
   <body>
     <h1>TopStocks</h1>
     <button class="button button1" id="checkPage">Refresh Stocks!</button>
     <p id = "specificStock"></p>
     <p id = "sentiment"></p>
-
     <h2>Top Stocks for Today:</h2>
     <p id = "topStocks"></p>
-    <p id = "stockNews"></p>
     <p id = "visualize"></p>
-    <!-- <button class="button button2" id="checkPage">Show Visualizations!</button> -->
-    <script src="popup.js"></script>
+    <img id="graph" src="topstocks.png" style="display:none; max-width: 96%" />
+    <p id = "stockNews"></p>
+    <p id = "visualize1"></p>
+    <img id="graph1" src="sentimentgraph.png" style="display:none; max-width: 96%" />
 
-    <footer>
-      <!-- this can link the user to the chrome extension settings page -->
-      <!-- <p>Settings</p> -->
-    </footer>
+    <script src="popup.js"></script>
   </body>
 </html>
