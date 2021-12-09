@@ -184,7 +184,7 @@ def Visualize1():
     plt.bar(grouped_stocks.Sentiment,grouped_stocks.Headline)
     plt.xticks(rotation = 15) # Rotates X-Axis Ticks by 15-degrees
     plt.title("Sentiment Analysis Bar Chart")
-    plt.ylabel("Polarity Score")
+    plt.ylabel("Count")
     plt.savefig('../sample_extension/sentimentgraph.png', format="png")
 
     return "Sentiment Visualization:"
