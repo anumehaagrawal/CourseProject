@@ -1,7 +1,8 @@
 # CS410 group project for JADE
-
+Final 
 Project Name - Chrome extension for stocks
 
+Final Software Usage Tutorial Presentation: https://mediaspace.illinois.edu/media/t/1_rwu6frdg
 
 Jhinuk Barman, jbarman2
 Anumeha Agrawal  anumeha2
