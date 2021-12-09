@@ -4,6 +4,8 @@ Project Name - Chrome extension for stocks
 
 Final Software Usage Tutorial Presentation: https://mediaspace.illinois.edu/media/t/1_rwu6frdg
 
+You can find the Final Project Documentation as a PDF in the above files in this repository.
+
 Jhinuk Barman, jbarman2
 Anumeha Agrawal  anumeha2
 Devang Aggarwal; devanga3
